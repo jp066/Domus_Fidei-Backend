@@ -4,10 +4,6 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-wtr7!g)y-4s72-gx6&h!6te*!o4$bx4owmv-f-)^u3#o^k^_ve'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -25,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rolepermissions',
     'catechist',
     'events',
     'finances',
@@ -75,7 +72,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'domus_fidei',
-        'USER': 'domusdei',
+        'USER': 'sa',
         'PASSWORD': 'domusdei123',
         'HOST': 'JOAOPEDRO\\SQLEXPRESS',  # Use the instance name if SQL Server is not the default instance
         'PORT': '1433',
@@ -128,3 +125,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ROLEPERMISSIONS_MODULE = 'users.roles' # Define o módulo onde estão os papéis e permissões dos usuários
+AUTH_USER_MODEL = 'users.Pessoa' # Define o modelo de usuário personalizado
