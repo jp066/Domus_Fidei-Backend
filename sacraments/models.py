@@ -3,7 +3,8 @@ from users.models import Paroco, Pessoa
 
 class SacramentoChoices(models.TextChoices):
     BATISMO = 'BATISMO', 'Batismo'
-    CRISMA = 'CRISM', 'Crisma'
+    CONFISSAO = 'CONFISSAO', 'Confissão'
+    CRISMA = 'CRISMA', 'Crisma'
     ADORACAO_EUCARISTICA = 'ADORACAO_EUCARISTICA', 'Adoração Eucarística'
     MATRIMONIO = 'MATRIMONIO', 'Matrimônio'
     ORDENACAO = 'ORDENACAO', 'Ordenação'
@@ -11,11 +12,14 @@ class SacramentoChoices(models.TextChoices):
     RECONCILIACAO = 'RECONCILIACAO', 'Reconciliação'
 
 class SacramentoParoquial(models.Model):
-    paroco_responsavel = models.ForeignKey(
+    paroco_responsavel = models.ForeignKey( # no ForeignKey, um paroco pode ser responsável por vários sacramentos, mas cada sacramento é
+        # responsabilidade de um único paroco.
         Paroco,
         on_delete=models.CASCADE,
         verbose_name='Pároco Responsável'
     )
+    # querys para pegar o pároco responsável:
+    # paroco = Paroco.objects.get(id=1) # digamos que o pároco com id 1 é o responsável pelo sacramento.
     nome_sacramento = models.CharField(
         max_length=20,
         choices=SacramentoChoices.choices,
@@ -23,22 +27,9 @@ class SacramentoParoquial(models.Model):
         verbose_name="Nome do Sacramento",
         default=SacramentoChoices.BATISMO,
     )
-    data_agendamento = models.DateField( # quando o sacramento foi agendado
-        auto_now_add=True, # quando for criado um novo sacramento será preenchido automaticamente.
-        null=False,
-        verbose_name='Data do Sacramento',
-    )
-    data_sacramento = models.DateTimeField( # quando o sacramento foi realizado, diferente da data de agendamento
-        # esta data será preenchida manualmente pelo pároco que realizou o sacramento.
-        null=False,
-        verbose_name='Data do Sacramento',
-    )
-    envolvidos = models.CharField(
-        max_length=255,
-        null=True,
-        verbose_name='Envolvidos',
-        help_text='Lista de pessoas ou grupos envolvidos no sacramento, separados por vírgula.'
-    )
+
+    def __str__(self):
+        return f'{self.nome_sacramento} - Pe. {self.paroco_responsavel.pessoa.nome}'
 
 
 class AgendamentoSacramento(models.Model): 
@@ -74,6 +65,12 @@ class AgendamentoSacramento(models.Model):
         help_text='Data em que o sacramento foi solicitado.'
     ) # data em que o sacramento foi solicitado, ou seja, a data que a pessoa escolheu para o sacramento.
 
+    envolvidos = models.CharField(
+        max_length=255,
+        null=True,
+        verbose_name='Envolvidos',
+        help_text='Lista de pessoas ou grupos envolvidos no sacramento, separados por vírgula.'
+    )
 
     aprovado = models.BooleanField( 
         # só utilizado em casos de sacramentos que não necessitam do paroco para serem realizados, podendo ser
@@ -87,3 +84,6 @@ class AgendamentoSacramento(models.Model):
     class Meta:
         verbose_name = 'Agendamento de Sacramento'
         verbose_name_plural = 'Agendamentos de Sacramentos'
+
+    def __str__(self):
+        return f'{self.sacramento.nome_sacramento} - {self.pessoa.nome} - {self.data_solicitada.strftime("%Y-%m-%d %H:%M:%S")}'

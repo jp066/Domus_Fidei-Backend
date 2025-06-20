@@ -40,7 +40,6 @@ class Pessoa(AbstractUser):
         ordering = ['nome']
 
 
-
 class Paroco(models.Model):
     pessoa = models.OneToOneField(
         Pessoa,
@@ -53,3 +52,6 @@ class Paroco(models.Model):
         unique=True,
         verbose_name='Identificador do Pároco'
     )
+
+    def __str__(self):
+        return f'{self.pessoa.nome} ({self.identificador_paroco})'
