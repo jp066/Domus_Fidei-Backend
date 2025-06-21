@@ -128,3 +128,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ROLEPERMISSIONS_MODULE = 'users.roles' # Define o módulo onde estão os papéis e permissões dos usuários
 AUTH_USER_MODEL = 'users.Pessoa' # Define o modelo de usuário personalizado
+
+# --- Configuração para arquivos de mídia (Imagens) ---
+# Onde as imagens serão salvas no sistema de arquivos
+MEDIA_ROOT = BASE_DIR / 'media'
+# A URL para acessar esses arquivos de mídia
+MEDIA_URL = '/media/'
