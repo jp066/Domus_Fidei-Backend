@@ -64,7 +64,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Domus_Dei.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
