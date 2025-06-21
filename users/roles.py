@@ -1,4 +1,5 @@
-from rolepermissions.roles import AbstractUserRole # importa AbstractUserRole da biblioteca rolepermissions
+from rolepermissions.roles import AbstractUserRole 
+# importa AbstractUserRole da biblioteca rolepermissions
 # o AbstractUserRole é uma classe base que define os papéis de usuário e suas permissões
 
 class Paroco(AbstractUserRole):

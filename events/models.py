@@ -105,7 +105,7 @@ class EquipeRetiro(models.Model):
     nome_equipe = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.nome_equipe} - {self.evento.nome_evento}"
+        return f"{self.nome_equipe} - {self.retiro.nome_retiro}"
     class Meta:
         verbose_name = 'Equipe de Evento'
         verbose_name_plural = 'Equipes de Eventos'
@@ -142,12 +142,9 @@ class StatusInscricaoRetiro(models.TextChoices):
 
 class InscricaoRetiro(models.Model):
     retiro = models.ForeignKey(RetiroAcampamento, on_delete=models.CASCADE, related_name='inscricoes')
-    usuario = models.ForeignKey(
-        get_user_model(), # obtém o modelo de usuário personalizado definido em settings.py
-        # é diferente de usar settings.AUTH_USER_MODEL, pois o get_user_model() já retorna o modelo de usuário personalizado
-        on_delete=models.CASCADE,
-        related_name='inscricoes_retiro'
-    )  # o usuário que se inscreveu no retiro/acampamento
+    usuario = models.CharField(max_length=100)  # Nome do inscrito
+    email = models.EmailField(null=True, blank=True)  # Opcional, caso queira contato
+    telefone = models.CharField(max_length=20, null=True, blank=True)  # Opcional
     data_inscricao = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=1,
@@ -157,4 +154,4 @@ class InscricaoRetiro(models.Model):
     observacoes = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"Inscrição de {self.usuario.nome} no retiro {self.retiro.nome_retiro} - Status: {self.get_status_display()}"
+        return f"Inscrição de {self.usuario} no retiro {self.retiro.nome_retiro} - Status: {self.get_status_display()}"

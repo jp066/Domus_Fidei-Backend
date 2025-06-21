@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
+
 
 class PerfilPessoa(models.TextChoices):
     PAROCO = 'PAROCO', 'Pároco'
@@ -9,7 +11,24 @@ class PerfilPessoa(models.TextChoices):
     FIEL = 'FIEL', 'Fiel da Comunidade'
 
 
+class PessoaManager(UserManager):
+    def create_superuser(self, codigo_acesso, nome, comunidade, perfil_pessoa, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        
+        return super().create_superuser(
+            username=codigo_acesso,  # Garante que o username seja preenchido
+            codigo_acesso=codigo_acesso,
+            nome=nome,
+            comunidade=comunidade,
+            perfil_pessoa=perfil_pessoa,
+            password=password,
+            **extra_fields
+        )
+
+
 class Pessoa(AbstractUser):
+    objects = PessoaManager()  # Certifique-se de que você tenha um gerenciador de usuários personalizado, se necessário
     username = models.CharField(max_length=150, null=True, blank=True, default=None)
     email = models.EmailField(max_length=254, null=True, blank=True, default=None)
     first_name = models.CharField(max_length=150, null=True, blank=True, default=None)
@@ -31,8 +50,8 @@ class Pessoa(AbstractUser):
         default=PerfilPessoa.FIEL,
         verbose_name="Perfil do Usuário"
     )
-    USERNAME_FIELD = 'codigo_acesso' # O campo 'codigo_acesso' será usado para login
-    REQUIRED_FIELDS = ['nome', 'comunidade', 'perfil_pessoa'] # Campos obrigatórios na criação de um superusuário
+    USERNAME_FIELD = 'codigo_acesso'
+    REQUIRED_FIELDS = ['nome', 'comunidade', 'perfil_pessoa']
 
     class Meta:
         verbose_name = 'Pessoa'
@@ -52,6 +71,7 @@ class Paroco(models.Model):
         unique=True,
         verbose_name='Identificador do Pároco'
     )
+
 
     def __str__(self):
         return f'{self.pessoa.nome} ({self.identificador_paroco})'
