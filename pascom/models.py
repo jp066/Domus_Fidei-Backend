@@ -36,7 +36,6 @@ class MidiaGaleria(models.Model):
     )
     nome_arquivo = models.CharField(max_length=255, blank=True, verbose_name='Nome do Arquivo')  # <-- Adicionado
     arquivo = models.FileField(upload_to='midias_galeria/', verbose_name='Arquivo da Mídia')
-    # a variavel arquivo deve ser um arquivo de imagem, vídeo ou áudio. funciona como um campo de upload de arquivos.
     data_upload = models.DateTimeField(auto_now_add=True, verbose_name='Data de Upload')
     id_pessoa_pascom = models.ForeignKey(Pessoa, on_delete=models.SET_NULL, null=True, related_name='midias_pascom')
 
