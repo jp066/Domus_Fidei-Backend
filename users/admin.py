@@ -10,7 +10,7 @@ class PessoaAdmin(BaseUserAdmin): # Herda do UserAdmin padrão do Django
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'perfil_pessoa')
     ordering = ('perfil_pessoa', 'nome')
     fieldsets = (
-        (None, {'fields': ('codigo_acesso', 'password')}), # Informações de autenticação
+        (None, {'fields': ('password',)}), # Informações de autenticação
         ('Informações Pessoais', {'fields': ('nome', 'comunidade', 'perfil_pessoa')}),
         ('Permissões e Status', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Datas Importantes', {'fields': ('last_login', 'date_joined')}),
@@ -18,7 +18,7 @@ class PessoaAdmin(BaseUserAdmin): # Herda do UserAdmin padrão do Django
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('codigo_acesso', 'nome', 'comunidade', 'perfil_pessoa', 'password'), # Inclua password aqui
+            'fields': ('nome', 'comunidade', 'perfil_pessoa', 'password'), # Inclua password aqui
         }),
     )
     

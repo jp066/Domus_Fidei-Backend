@@ -30,7 +30,7 @@ class PessoaManager(UserManager):
 class Pessoa(AbstractUser):
     objects = PessoaManager()  # Certifique-se de que você tenha um gerenciador de usuários personalizado, se necessário
     username = models.CharField(max_length=150, null=True, blank=True, default=None)
-    email = models.EmailField(max_length=254, null=True, blank=True, default=None)
+    email = models.EmailField(max_length=254, null=False) # O email é obrigatório
     first_name = models.CharField(max_length=150, null=True, blank=True, default=None)
     last_name = models.CharField(max_length=150, null=True, blank=True, default=None)
     is_superuser = models.BooleanField(default=False) # Por padrão, o usuário não é um superusuário
@@ -39,6 +39,8 @@ class Pessoa(AbstractUser):
     codigo_acesso = models.CharField(
         max_length=20, # (ex: "P001", "CAT0010", "FIEL_12345")
         unique=True,
+        blank=True,
+        editable=False,
         verbose_name='Código de Acesso',
         help_text='Código de acesso único para identificação do usuário na plataforma.'
     )
@@ -53,10 +55,32 @@ class Pessoa(AbstractUser):
     USERNAME_FIELD = 'codigo_acesso'
     REQUIRED_FIELDS = ['nome', 'comunidade', 'perfil_pessoa']
 
+
+    def criar_codigo_acesso(self):
+        prefixos = {
+            PerfilPessoa.PAROCO: 'PAROCO',
+            PerfilPessoa.CATEQUISTA: 'CAT',
+            PerfilPessoa.COORDENADOR_MINISTERIO: 'COORD',
+            PerfilPessoa.PASCOM: 'PASCOM',
+            PerfilPessoa.FIEL: 'FIEL',
+        }
+        prefixo = prefixos.get(self.perfil_pessoa, 'FIEL')
+        return f'{prefixo}_{self.pk:04d}'
+
+
+    def save(self, *args, **kwargs):
+        is_novo = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_novo and not self.codigo_acesso:
+            self.codigo_acesso = self.criar_codigo_acesso()
+            super().save(update_fields=['codigo_acesso'])
+
     class Meta:
         verbose_name = 'Pessoa'
         verbose_name_plural = 'Pessoas'
         ordering = ['nome']
+
 
 
 class Paroco(models.Model):
