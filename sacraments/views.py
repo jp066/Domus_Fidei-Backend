@@ -68,7 +68,7 @@ class AgendamentoViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-        serializer = AgendamentoSacramentoSerializer(data=request.data)
+        serializer = AgendamentoSacramentoSerializer(data=request.data, context={'pessoa': pessoa})
         if serializer.is_valid():
             agendamento = serializer.save(pessoa=pessoa)
             read_serializer = AgendamentoSacramentoReadSerializer(agendamento) # Serializa o agendamento criado
