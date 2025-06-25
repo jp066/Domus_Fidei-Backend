@@ -83,9 +83,7 @@ class AgendamentoViewSet(viewsets.ViewSet):
     
     @action(detail=False, methods=['get'], url_path='meus-agendamentos')
     def listar_agendamentos(self, request):
-
-
-        pessoa = request.user # usuario autenticado
+        pessoa = request.user
         agendamentos = Agendamento.objects.filter(pessoa=pessoa)
         serializer = AgendamentoSacramentoReadSerializer(agendamentos, many=True) # Serializa todos os agendamentos da pessoa
         
