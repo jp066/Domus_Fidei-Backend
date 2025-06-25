@@ -8,8 +8,14 @@ from .serializers import PessoaSerializer, ParocoSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .permissions import PerfilPermitido
 
-class CriarPessoaViewSet(viewsets.ViewSet):
-    # se a view é para se cadastrar, então não precisa de permissão.
+class PessoaViewSet(viewsets.ViewSet):
+
+    def get_permissions(self):
+        if self.action in ['meu_perfil']:
+            return [IsAuthenticated()] # 
+        
+        return [IsAuthenticated]
+
     def create(self, request):
         serializer = PessoaSerializer(data=request.data)
         if serializer.is_valid():
@@ -18,6 +24,13 @@ class CriarPessoaViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=400)
     # essa view cadastra uma pessoa.
     
+
+    @action(detail=False, methods=['get'], url_path='meu-perfil')
+    def meu_perfil(self, request):
+        pessoa = request.user.nome
+        serializer = PessoaSerializer(request.user)
+        return Response(serializer.data)
+
 
     @action(detail=False, methods=['post'], url_path='criar-paroco')
     def criar_paroco(self, request):

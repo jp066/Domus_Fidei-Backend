@@ -25,16 +25,33 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework
     'rest_framework.authtoken',  # Para autenticação via token, usando JWT
     'rest_framework_simplejwt',  # SimpleJWT
-    'catechist',
+    'drf_yasg',  # Para documentação da API com Swagger
     'events',
     'finances',
-    'mass',
-    'ministres',
-    'notifications',
     'pascom',
     'prayer_requests',
     'sacraments',
     'users',
+    'cloudinary',         # adicionando Cloudinary 
+    'cloudinary_storage', # adicionando Cloudinary Storage
+]
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'drroo8xpo',  # Substitua pelo seu nome de nuvem do Cloudinary
+    'API_KEY': '265219895429358',          # Substitua pela sua chave de API do Cloudinary
+    'API_SECRET': '3PhW63CTrITd0EOnFAH7zyikunw',    # Substitua pelo seu segredo de API do Cloudinary
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Se você também quiser servir arquivos estáticos do Cloudinary (opcional)
+# STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage'
+# STATIC_URL = '/static/'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'  # Para collectstatic em produção
+# 
+# Diretórios adicionais onde o Django procura arquivos estáticos
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
 ]
 
 MIDDLEWARE = [
@@ -67,8 +84,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Domus_Dei.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -87,9 +102,6 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -106,25 +118,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-#USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -146,6 +148,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+ROTATE_REFRESH_TOKENS = True
 
 # --- Configurações do Simple JWT ---
 SIMPLE_JWT = {
@@ -176,6 +180,6 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=60), # Duração do token de acesso
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=10), # Duração do token de atualização
 }
