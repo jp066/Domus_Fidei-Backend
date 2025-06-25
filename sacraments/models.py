@@ -65,12 +65,6 @@ class AgendamentoSacramento(models.Model):
         help_text='Data em que o sacramento foi solicitado.'
     ) # data em que o sacramento foi solicitado, ou seja, a data que a pessoa escolheu para o sacramento.
 
-    envolvidos = models.CharField(
-        max_length=255,
-        null=True,
-        verbose_name='Envolvidos',
-        help_text='Lista de pessoas ou grupos envolvidos no sacramento, separados por vírgula.'
-    )
 
     aprovado = models.BooleanField( 
         # só utilizado em casos de sacramentos que não necessitam do paroco para serem realizados, podendo ser
