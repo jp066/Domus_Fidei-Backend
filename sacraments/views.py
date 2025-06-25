@@ -19,8 +19,7 @@ class SacramentoViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='criar') # url_path define o endpoint
     def criar_sacramento(self, request):
         try:
-            # Busca o pároco baseado no usuário logado
-            paroco = request.user.paroco
+            paroco = request.user.paroco # Busca o pároco baseado no usuário logado
         except AttributeError:
             return Response(
                 {'error': 'Usuário logado não é um pároco'}, 
@@ -31,7 +30,6 @@ class SacramentoViewSet(viewsets.ViewSet):
         if serializer_class.is_valid():
             # Define o pároco responsável automaticamente
             sacramento = serializer_class.save(paroco_responsavel=paroco)
-            
             return Response({
                 'message': 'Sacramento criado com sucesso!',
                 'data': {
