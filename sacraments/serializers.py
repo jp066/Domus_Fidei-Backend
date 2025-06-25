@@ -27,11 +27,11 @@ class CriarSacramentoSerializer(serializers.ModelSerializer):
         model = SacramentoParoquial
         fields = ['nome_sacramento']
     
+
     def create(self, validated_data):
-        # O pároco responsável será definido automaticamente com base no usuário logado
-        # Isso será feito na view
-        return super().create(validated_data)
-    
+    pessoa = self.context['pessoa']
+    return Agendamento.objects.create(pessoa=pessoa, **validated_data)
+
 
 class AgendamentoSacramentoSerializer(serializers.ModelSerializer):
     sacramento = serializers.PrimaryKeyRelatedField(queryset=SacramentoParoquial.objects.all())
