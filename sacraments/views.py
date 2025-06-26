@@ -14,6 +14,7 @@ class SacramentoViewSet(viewsets.ViewSet):
             return [PerfilPermitido('PAROCO')] # Permite apenas usuários com perfil de 'PAROCO'
         return [IsAuthenticated()] # Permite apenas usuários autenticados para outras ações
     
+    
     def list(self, request):
         # Lista todos os sacramentos disponíveis
         sacramentos = Sacramento.objects.all()
