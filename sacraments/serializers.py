@@ -5,7 +5,6 @@ from users.permissions import PerfilPermitido
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 
-
 # esse serializer é usado para serializar os dados do SacramentoParoquial
 class SacramentoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,8 +28,8 @@ class CriarSacramentoSerializer(serializers.ModelSerializer):
     
 
     def create(self, validated_data):
-    pessoa = self.context['pessoa']
-    return Agendamento.objects.create(pessoa=pessoa, **validated_data)
+        paroco = self.context['paroco'] # Obtém o pároco do contexto que foi passado na view
+        return SacramentoParoquial.objects.create(paroco_responsavel=paroco, **validated_data)
 
 
 class AgendamentoSacramentoSerializer(serializers.ModelSerializer):

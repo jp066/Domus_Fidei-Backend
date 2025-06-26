@@ -9,27 +9,16 @@ from rest_framework.permissions import IsAuthenticated
 class PessoaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pessoa
-        fields = ['id', 'codigo_acesso', 'nome', 'comunidade', 'perfil_pessoa', 'password']
+        fields = ['id', 'codigo_acesso', 'nome','email', 'comunidade', 'perfil_pessoa', 'password']
         read_only_fields = ['codigo_acesso']
 
     def create(self, validated_data):
         # Preenche o campo username com o mesmo valor de codigo_acesso
         validated_data['username'] = validated_data.get('codigo_acesso')
         password = validated_data.pop('password')
-
         pessoa = Pessoa(**validated_data)
         pessoa.set_password(password)
-        pessoa.save()
-        
-        # Se for um pároco, cria automaticamente o registro Paroco
-        if pessoa.perfil_pessoa == PerfilPessoa.PAROCO:
-            # Gera um identificador único para o pároco baseado no código de acesso
-            identificador_paroco = f"PADRE_{pessoa.codigo_acesso}"
-            Paroco.objects.create(
-                pessoa=pessoa,
-                identificador_paroco=identificador_paroco
-            )
-        
+        pessoa.save()        
         return pessoa
 
 

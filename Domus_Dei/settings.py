@@ -25,11 +25,11 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST Framework
     'rest_framework.authtoken',  # Para autenticação via token, usando JWT
     'rest_framework_simplejwt',  # SimpleJWT
+    'rest_framework_simplejwt.token_blacklist',  # Para blacklist de tokens
     'drf_yasg',  # Para documentação da API com Swagger
     'events',
     'finances',
     'pascom',
-    'prayer_requests',
     'sacraments',
     'users',
     'cloudinary',         # adicionando Cloudinary 
@@ -154,7 +154,7 @@ ROTATE_REFRESH_TOKENS = True
 # --- Configurações do Simple JWT ---
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,

@@ -12,24 +12,38 @@ class SacramentoViewSet(viewsets.ViewSet):
     def get_permissions(self):
         if self.action == 'criar_sacramento': # Verifica se a ação é 'criar_sacramento'
             return [PerfilPermitido('PAROCO')] # Permite apenas usuários com perfil de 'PAROCO'
-
         return [IsAuthenticated()] # Permite apenas usuários autenticados para outras ações
+    
+    def list(self, request):
+        # Lista todos os sacramentos disponíveis
+        sacramentos = Sacramento.objects.all()
+        serializer = CriarSacramentoSerializer(sacramentos, many=True)
+        return Response({
+            'message': 'Lista de sacramentos:',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+    
+
+    def retrieve(self, request, pk=None):
+        # Obtém um sacramento específico pelo ID
+        try:
+            sacramento = Sacramento.objects.get(pk=pk)
+            serializer = CriarSacramentoSerializer(sacramento)
+            return Response({
+                'message': 'Detalhes do sacramento:',
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Sacramento.DoesNotExist:
+            return Response({'error': 'Sacramento não encontrado'}, status=status.HTTP_404_NOT_FOUND)
     
 
     @action(detail=False, methods=['post'], url_path='criar') # url_path define o endpoint
     def criar_sacramento(self, request):
-        try:
-            paroco = request.user.paroco # Busca o pároco baseado no usuário logado
-        except AttributeError:
-            return Response(
-                {'error': 'Usuário logado não é um pároco'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        serializer_class = CriarSacramentoSerializer(data=request.data)
+        paroco = request.user.paroco  # Obtém o pároco associado ao usuário autenticado
+        serializer_class = CriarSacramentoSerializer(data=request.data, context={'paroco': paroco})
         if serializer_class.is_valid():
             # Define o pároco responsável automaticamente
-            sacramento = serializer_class.save(paroco_responsavel=paroco)
+            sacramento = serializer_class.save()
             return Response({
                 'message': 'Sacramento criado com sucesso!',
                 'data': {
