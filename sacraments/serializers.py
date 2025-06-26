@@ -25,7 +25,6 @@ class CriarSacramentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = SacramentoParoquial
         fields = ['nome_sacramento']
-    
 
     def create(self, validated_data):
         paroco = self.context['paroco'] # Obtém o pároco do contexto que foi passado na view

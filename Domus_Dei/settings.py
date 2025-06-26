@@ -154,9 +154,9 @@ ROTATE_REFRESH_TOKENS = True
 # --- Configurações do Simple JWT ---
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5), # o token de atualização dura 5 dias
+    'ROTATE_REFRESH_TOKENS': True, # Rotaciona o token de atualização a cada uso
+    'BLACKLIST_AFTER_ROTATION': True, # Adiciona o token de atualização à blacklist após a rotação
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',

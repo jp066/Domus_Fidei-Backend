@@ -1,2 +1,2 @@
-staticfiles/** linguist-vendored
-*.min.js linguist-vendored
+staticfiles/** linguist-vendored # Exclude static files from linguist processing
+*.min.js linguist-vendored 

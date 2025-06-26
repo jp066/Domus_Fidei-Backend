@@ -8,14 +8,14 @@ from django.contrib.auth import get_user_model
 # sem a necessidade de ter uma equipe.
 
 class Eventos(models.Model):
-    nome_evento = models.CharField(max_length=100)
+    nome_evento = models.CharField(max_length=100, null=False, blank=False)
     descricao = models.TextField()
-    data_inicio = models.DateField()
-    data_fim = models.DateField()
-    local = models.CharField(max_length=100)
+    data_inicio = models.DateField(null=False, blank=False)
+    data_fim = models.DateField(null=False, blank=False)
+    local = models.CharField(max_length=100, null=False, blank=False)
     ativo = models.BooleanField(default=True) # o evento pode ser desativado, mas não excluído
     coordenador = models.ForeignKey(
-        get_user_model(),
+        get_user_model(), # é a mesma coisa que Pessoa, mas aqui usamos get_user_model() para garantir que estamos usando o modelo de usuário correto
         on_delete=models.CASCADE,
         related_name='eventos_coordenados'
     ) # o coordenador é o usuário que criou o evento

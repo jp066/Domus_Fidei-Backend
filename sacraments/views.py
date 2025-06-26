@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from rest_framework import viewsets, serializers, status
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -26,7 +25,6 @@ class SacramentoViewSet(viewsets.ViewSet):
     
 
     def retrieve(self, request, pk=None):
-        # Obtém um sacramento específico pelo ID
         try:
             sacramento = Sacramento.objects.get(pk=pk)
             serializer = CriarSacramentoSerializer(sacramento)
