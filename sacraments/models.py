@@ -12,14 +12,11 @@ class SacramentoChoices(models.TextChoices):
     RECONCILIACAO = 'RECONCILIACAO', 'Reconciliação'
 
 class SacramentoParoquial(models.Model):
-    paroco_responsavel = models.ForeignKey( # no ForeignKey, um paroco pode ser responsável por vários sacramentos, mas cada sacramento é
-        # responsabilidade de um único paroco.
+    paroco_responsavel = models.ForeignKey(
         Paroco,
         on_delete=models.CASCADE,
         verbose_name='Pároco Responsável'
     )
-    # querys para pegar o pároco responsável:
-    # paroco = Paroco.objects.get(id=1) # digamos que o pároco com id 1 é o responsável pelo sacramento.
     nome_sacramento = models.CharField(
         max_length=20,
         choices=SacramentoChoices.choices,

@@ -155,8 +155,8 @@ ROTATE_REFRESH_TOKENS = True
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=5), # o token de atualização dura 5 dias
-    'ROTATE_REFRESH_TOKENS': True, # Rotaciona o token de atualização a cada uso
-    'BLACKLIST_AFTER_ROTATION': True, # Adiciona o token de atualização à blacklist após a rotação
+    'ROTATE_REFRESH_TOKENS': False, # essa configuração em False, significa que o token de atualização não é rotacionado automaticamente após o uso.
+    'BLACKLIST_AFTER_ROTATION': False, # em consequência, o token de atualização não é adicionado à blacklist após ser usado. fazendo com que o token de atualização possa ser usado várias vezes até expirar.
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
@@ -180,6 +180,6 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=60), # Duração do token de acesso
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=10), # Duração do token de atualização
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=60),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1), # sliding token de atualização dura 1 dia
 }

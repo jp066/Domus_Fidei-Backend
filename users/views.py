@@ -23,8 +23,21 @@ class PessoaViewSet(viewsets.ViewSet):
         return Response(serializer_class.errors, status=400)
     
 
+    def update(self, request, pk=None):
+        try:
+            pessoa = request.user  # Obtém o usuário autenticado
+            serializer = PessoaSerializer(pessoa, data=request.data, partial=True)  # partial=True permite atualizar apenas alguns campos
+            if serializer.is_valid():
+                pessoa_atualizada = serializer.save()
+                return Response({'message': 'Perfil atualizado com sucesso!', 
+                            'data': PessoaSerializer(pessoa_atualizada).data}, status=200)
+            return Response(serializer.errors, status=400)
+        except pessoa.DoesNotExist:
+            return Response({'error': 'Usuário não encontrado'}, status=404)
+    
+
     @action(detail=False, methods=['get'], url_path='meu-perfil')
     def meu_perfil(self, request):
-        pessoa = request.user.nome
-        serializer = PessoaSerializer(request.user)
+        pessoa = request.user
+        serializer = PessoaSerializer(pessoa)
         return Response(serializer.data)

@@ -2,7 +2,11 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .serializers import CriarSacramentoSerializer, AgendamentoSacramentoSerializer, AgendamentoSacramentoReadSerializer
+from .serializers import (
+    SacramentoSerializer,
+    CriarSacramentoSerializer,
+    AgendamentoSacramentoSerializer, 
+    AgendamentoSacramentoReadSerializer)
 from .models import SacramentoParoquial as Sacramento, AgendamentoSacramento as Agendamento
 from users.permissions import PerfilPermitido
 
@@ -11,13 +15,15 @@ class SacramentoViewSet(viewsets.ViewSet):
     def get_permissions(self):
         if self.action == 'criar_sacramento': # Verifica se a ação é 'criar_sacramento'
             return [PerfilPermitido('PAROCO')] # Permite apenas usuários com perfil de 'PAROCO'
+        #if self.action in ['list', 'retrieve', 'destroy']: # Verifica se a ação é 'list', 'retrieve' ou 'destroy'
+        #    return [PerfilPermitido('PAROCO')]
         return [IsAuthenticated()] # Permite apenas usuários autenticados para outras ações
-    
+
     
     def list(self, request):
-        # Lista todos os sacramentos disponíveis
+        paroco = request.user  # Obtém o pároco associado ao usuário autenticado
         sacramentos = Sacramento.objects.all()
-        serializer = CriarSacramentoSerializer(sacramentos, many=True)
+        serializer = SacramentoSerializer(sacramentos, many=True, context={'paroco': paroco})  # Passa o pároco no contexto para o serializer
         return Response({
             'message': 'Lista de sacramentos:',
             'data': serializer.data
@@ -56,35 +62,22 @@ class SacramentoViewSet(viewsets.ViewSet):
 
 
 class AgendamentoViewSet(viewsets.ViewSet):
-
     def get_permissions(self):
         if self.action == 'criar_agendamento': # Verifica se a ação é 'criar_agendamento'
             return [IsAuthenticated()]
-    
         return [IsAuthenticated()] # Permite apenas usuários autenticados para outras ações
     
+
     @action(detail=False, methods=['post'], url_path='agendar')
     def criar_agendamento(self, request):
-        # Verifica se o usuário está autenticado
-        if not request.user.is_authenticated:
-            return Response(
-                {'error': 'Usuário não está autenticado'}, 
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-            
-        # Verifica se o usuário tem uma pessoa associada
-        # Como Pessoa é o modelo de usuário customizado, request.user já é uma instância de Pessoa
-        pessoa = request.user
-        if not pessoa:
-            return Response(
-                {'error': 'Usuário logado não possui uma pessoa associada'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
-        serializer = AgendamentoSacramentoSerializer(data=request.data, context={'pessoa': pessoa})
+        pessoa = request.user  # Obtém a pessoa associada ao usuário autenticado
+        serializer = AgendamentoSacramentoSerializer(
+            data=request.data, 
+            context={'pessoa': pessoa}
+            ) # Cria um serializer com os dados da requisição e o contexto da pessoa autenticada
         if serializer.is_valid():
-            agendamento = serializer.save(pessoa=pessoa)
-            read_serializer = AgendamentoSacramentoReadSerializer(agendamento) # Serializa o agendamento criado
+            agendamento = serializer.save()
+            read_serializer = AgendamentoSacramentoReadSerializer(agendamento, context={'pessoa':pessoa}) # Serializa o agendamento criado
             
             return Response({
                 'message': 'Agendamento criado com sucesso!',
@@ -104,3 +97,14 @@ class AgendamentoViewSet(viewsets.ViewSet):
             'message': 'Agendamentos listados:',
             'data': serializer.data
         }, status=status.HTTP_200_OK) # Retorna a lista de agendamentos da pessoa autenticada
+    
+
+    @action(detail=True, methods=['delete'], url_path='excluir-agendamento')
+    def apagar_agendamento(self, request, pk=None):
+        serializer = AgendamentoSacramentoSerializer()  # Cria uma instância do serializer para usar o método de deleção
+        try:
+            agendamento = Agendamento.objects.get(pk=pk)  # Obtém o agendamento com base no pk fornecido
+            serializer.destroy(agendamento)  # Chama o método de deleção do serializer
+            return Response({'message': 'Agendamento deletado com sucesso!'}, status=status.HTTP_204_NO_CONTENT)
+        except Agendamento.DoesNotExist:
+            return Response({'error': 'Agendamento não encontrado'}, status=status.HTTP_404_NOT_FOUND)

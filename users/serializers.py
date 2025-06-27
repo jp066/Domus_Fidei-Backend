@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 class PessoaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pessoa
-        fields = ['id', 'codigo_acesso', 'nome','email', 'comunidade', 'perfil_pessoa', 'password']
+        fields = ['id', 'codigo_acesso', 'nome','email', 'comunidade', 'perfil_pessoa', 'perfis_adicionais', 'password']
         read_only_fields = ['codigo_acesso']
 
     def create(self, validated_data):
@@ -23,7 +23,13 @@ class PessoaSerializer(serializers.ModelSerializer):
 
 
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)    
+        for attr, value in validated_data.items():
+            if attr == 'password':
+                instance.set_password(value)
+            else:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class ParocoSerializer(serializers.ModelSerializer):

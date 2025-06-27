@@ -47,10 +47,20 @@ class Pessoa(AbstractUser):
     nome = models.CharField(max_length=100, verbose_name='Nome completo')
     comunidade = models.CharField(max_length=100, verbose_name='Comunidade')
     perfil_pessoa = models.CharField(
+        default=PerfilPessoa.FIEL, # pode ter mais de um perfil, como Pároco e Catequista
+        max_length=20,
+        null=False,
+        blank=False,
+        choices=PerfilPessoa.choices,
+        verbose_name="Perfil do Usuário",
+        # como permitir que o usuário tenha diferentes perfis, como Pároco, Catequista, Coordenador de Ministério?
+    )
+    perfis_adicionais = models.CharField(
         max_length=20,
         choices=PerfilPessoa.choices,
-        default=PerfilPessoa.FIEL,
-        verbose_name="Perfil do Usuário"
+        null=True,
+        blank=True,
+        verbose_name="Perfis Adicionais"
     )
     USERNAME_FIELD = 'codigo_acesso'
     REQUIRED_FIELDS = ['nome', 'comunidade', 'perfil_pessoa']
