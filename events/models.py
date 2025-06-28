@@ -40,7 +40,8 @@ class AssembleiaParoquial(models.Model):
         related_name='assembleias_participantes',
         blank=True,
         help_text='Usuários convidados para a assembleia'
-    )
+    ) # para isso, é necessario criar um modelo?
+    # o 
     ativo = models.BooleanField(default=True) # a assembleia pode ser desativada, mas não excluída
     paroco = models.ForeignKey(
         Paroco,

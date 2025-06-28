@@ -7,7 +7,7 @@ from .serializers import (
     EventosSerializer, DesativarEventoSerializer, AssembleiaParoquialSerializer
 )
 from .models import (
-    Eventos
+    Eventos, AssembleiaParoquial
 )
 from rest_framework.parsers import JSONParser, FormParser
 
@@ -106,12 +106,27 @@ class AssembleiaParoquialViewSet(viewsets.ViewSet):
     def get_permissions(self):
         if self.action == 'criar_assembleia':
             return [PerfilPermitido('PAROCO')]
-        
+        if self.action == 'adicionar_participantes':
+            return [PerfilPermitido('PAROCO')]
         return [IsAuthenticated()]
     
-    @action(detail=False, methods=['post'], url_path='criar')
-    def criar_assembleia(self, request):
-        paroco = request.user # Obtém o usuário logado, que deve ser um pároco
+    def create(self, request):
+        try:
+            paroco = request.user.paroco  # Obtém o pároco associado ao usuário autenticado
+        except AttributeError:
+            return Response({
+                'error': 'Usuário não é um pároco'
+                }, status=status.HTTP_403_FORBIDDEN)
+        tema_assembleia = request.data.get('tema_assembleia')
+        data_assembleia = request.data.get('data_assembleia')
+
+        if AssembleiaParoquial.objects.filter(
+            tema_assembleia=tema_assembleia, 
+            data_assembleia=data_assembleia
+        ).exists():
+            return Response({
+                'error': 'Já existe uma assembleia paroquial com o mesmo tema e data.'
+            }, status=status.HTTP_400_BAD_REQUEST)
         serializer = AssembleiaParoquialSerializer(data=request.data, context={'paroco': paroco})  # context é usado para passar o usuário logado como pároco responsável
         if serializer.is_valid():
             assembleia = serializer.save()
@@ -122,8 +137,25 @@ class AssembleiaParoquialViewSet(viewsets.ViewSet):
                     'tema_assembleia': assembleia.tema_assembleia,
                     'data_assembleia': assembleia.data_assembleia,
                     'local': assembleia.local,
-                    'paroco_responsavel': assembleia.paroco.pessoa.nome
+                    'paroco_responsavel': assembleia.paroco.pessoa.nome,
+                    'participantes': [participante.nome for participante in assembleia.participantes.all()],
                 }
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     # testar com um perfil de pároco e verificar se o usuário logado é o pároco responsável pela assembleia
+
+    @action(detail=True, methods=['patch'], url_path='remover-participante')
+    def remover_participantes(self, request, pk=None):
+        try:
+            assembleia = AssembleiaParoquial.objects.get(pk=pk)
+            participantes_ids = request.data.get('participantes', [])
+            assembleia.participantes.remove(*participantes_ids)  # Remove os participantes da assembleia
+            return Response({
+                'message': 'Participante removido com sucesso!',
+                'data': {
+                    'assembleia_id': assembleia.id,
+                    'participantes_restantes': [participante.nome for participante in assembleia.participantes.all()]
+                }
+            }, status=status.HTTP_200_OK)
+        except AssembleiaParoquial.DoesNotExist:
+            return Response({'error': 'Assembleia Paroquial não encontrada'}, status=status.HTTP_404_NOT_FOUND)

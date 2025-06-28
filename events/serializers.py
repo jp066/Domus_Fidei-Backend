@@ -9,6 +9,7 @@ from .models import (
     Eventos, AssembleiaParoquial
 )
 from rest_framework.exceptions import ValidationError
+from django.contrib.auth import get_user_model  # Importa o modelo de usuário atual
 
 
 class EventosSerializer(serializers.ModelSerializer):
@@ -49,14 +50,18 @@ class DesativarEventoSerializer(serializers.ModelSerializer):
     
 
 class AssembleiaParoquialSerializer(serializers.ModelSerializer):
-    paroco = serializers.SerializerMethodField()
+    user = get_user_model()  # Importa o modelo de usuário atual
+    participantes = serializers.PrimaryKeyRelatedField(
+        queryset=user.objects.all(),
+        many=True, # Importante para ManyToMany
+        required=True, # Se for opcional na criação
+        help_text='Lista de IDs dos usuários participantes.'
+    )
     class Meta:
         model = AssembleiaParoquial
-        fields = ['id', 'paroco', 'tema_assembleia', 'data_assembleia', 'local']
-        read_only_fields = ['id']
+        fields = ['paroco', 'tema_assembleia', 'data_assembleia', 'local', 'participantes', 'ativo']
+        read_only_fields = ['id', 'paroco']
 
-    def get_paroco_responsavel(self, obj):
-        return obj.pessoa.nome if obj.paroco and obj.paroco.pessoa else 'Pároco não definido'
     
     def validate(self, attrs):
         if not attrs.get('tema_assembleia'):
@@ -69,10 +74,22 @@ class AssembleiaParoquialSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
+        participantes = validated_data.pop('participantes', [])
         paroco = self.context.get('paroco')
         validated_data['paroco'] = paroco
-        return AssembleiaParoquial.objects.create(**validated_data)
+        assembleia = AssembleiaParoquial.objects.create(**validated_data)
+        assembleia.participantes.set(participantes) # Usa .set() para ManyToMany
+        return assembleia
     # estava fazendo isso, além de conferindo um erro.
+
+    def update(self, instance, validated_data):
+        participantes = validated_data.pop('participantes', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value) # setattr é um método que define o valor de um atributo de um objeto.
+        instance.save()
+        if participantes is not None:
+            instance.participantes.set(participantes)
+        return instance
 
 
     def list(self, instance):
