@@ -5,6 +5,11 @@ from .models import (
     InscricaoRetiro, Eventos,
     Formacoes, AssembleiaParoquial
 )
+from .models import (
+    Eventos, AssembleiaParoquial
+)
+from rest_framework.exceptions import ValidationError
+
 
 class EventosSerializer(serializers.ModelSerializer):
     coordenador = serializers.SerializerMethodField() # obtem o nome do coordenador associado ao evento
@@ -41,3 +46,36 @@ class DesativarEventoSerializer(serializers.ModelSerializer):
         instance.ativo = False  # Define o campo ativo como False
         instance.save()  # Salva a instância atualizada
         return instance  # Retorna a instância atualizada
+    
+
+class AssembleiaParoquialSerializer(serializers.ModelSerializer):
+    paroco = serializers.SerializerMethodField()
+    class Meta:
+        model = AssembleiaParoquial
+        fields = ['id', 'paroco', 'tema_assembleia', 'data_assembleia', 'local']
+        read_only_fields = ['id']
+
+    def get_paroco_responsavel(self, obj):
+        return obj.pessoa.nome if obj.paroco and obj.paroco.pessoa else 'Pároco não definido'
+    
+    def validate(self, attrs):
+        if not attrs.get('tema_assembleia'):
+            raise ValidationError("O campo 'tema_assembleia' é obrigatório.")
+        if not attrs.get('data_assembleia'):
+            raise ValidationError("O campo 'data_assembleia' é obrigatório.")
+        if not attrs.get('local'):
+            raise ValidationError("O campo 'local' é obrigatório.")
+        return attrs
+
+
+    def create(self, validated_data):
+        paroco = self.context.get('paroco')
+        validated_data['paroco'] = paroco
+        return AssembleiaParoquial.objects.create(**validated_data)
+    # estava fazendo isso, além de conferindo um erro.
+
+
+    def list(self, instance):
+        paroco = self.context.get('paroco')
+        serializer = AssembleiaParoquialSerializer(instance, many=True, context={'paroco': paroco})
+        return serializer.data

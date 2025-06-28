@@ -113,6 +113,7 @@ class CronogramaRetiroAdmin(admin.ModelAdmin):
         return obj.retiro.nome_retiro
     nome_retiro.short_description = 'Nome do Retiro'
 
+
 # Admin para InscricaoRetiro
 @admin.register(InscricaoRetiro)
 class InscricaoRetiroAdmin(admin.ModelAdmin):

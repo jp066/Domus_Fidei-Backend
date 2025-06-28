@@ -1,15 +1,18 @@
 from rest_framework import viewsets, status
-from .models import Eventos
 from rest_framework.response import Response
 from users.permissions import PerfilPermitido
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from .serializers import (
-    EventosSerializer, DesativarEventoSerializer
-    )
+    EventosSerializer, DesativarEventoSerializer, AssembleiaParoquialSerializer
+)
+from .models import (
+    Eventos
+)
 from rest_framework.parsers import JSONParser, FormParser
 
 class EventosViewSet(viewsets.ViewSet):
+
     def get_permissions(self):
         if self.action == 'criar_evento':
             return [PerfilPermitido('COORD_MINISTERIO')]
@@ -98,3 +101,29 @@ class EventosViewSet(viewsets.ViewSet):
             }, status=status.HTTP_200_OK)
         except Eventos.DoesNotExist:
             return Response({'error': 'Evento não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        
+class AssembleiaParoquialViewSet(viewsets.ViewSet):
+    def get_permissions(self):
+        if self.action == 'criar_assembleia':
+            return [PerfilPermitido('PAROCO')]
+        
+        return [IsAuthenticated()]
+    
+    @action(detail=False, methods=['post'], url_path='criar')
+    def criar_assembleia(self, request):
+        paroco = request.user # Obtém o usuário logado, que deve ser um pároco
+        serializer = AssembleiaParoquialSerializer(data=request.data, context={'paroco': paroco})  # context é usado para passar o usuário logado como pároco responsável
+        if serializer.is_valid():
+            assembleia = serializer.save()
+            return Response({
+                'message': 'Assembleia Paroquial criada com sucesso!',
+                'data': {
+                    'id': assembleia.id,
+                    'tema_assembleia': assembleia.tema_assembleia,
+                    'data_assembleia': assembleia.data_assembleia,
+                    'local': assembleia.local,
+                    'paroco_responsavel': assembleia.paroco.pessoa.nome
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # testar com um perfil de pároco e verificar se o usuário logado é o pároco responsável pela assembleia

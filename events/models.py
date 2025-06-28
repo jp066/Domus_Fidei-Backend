@@ -46,7 +46,7 @@ class AssembleiaParoquial(models.Model):
         Paroco,
         on_delete=models.CASCADE,
         related_name='assembleias_paroquiais'
-    ) # o pároco é o responsável pela assembleia paroquial
+    )
 
 
 # o responsável é o usuário que criou a formação, pode ser um pároco ou outro membro da comunidade
